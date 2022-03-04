@@ -1,3 +1,5 @@
+针对Ubuntu 20 及 OpenCV 4 进行了部分修改
+
 ## Slambook2
 ![titlepage](./figures/title.png)
 
