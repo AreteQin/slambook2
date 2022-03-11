@@ -5,10 +5,10 @@
 dataset_dir: /home/qin/Downloads/data_odometry_gray/dataset/sequences/02
 
 # camera intrinsics
-camera.fx: 517.3
-camera.fy: 516.5
-camera.cx: 325.1
-camera.cy: 249.7
+#camera.fx: 517.3
+#camera.fy: 516.5
+#camera.cx: 325.1
+#camera.cy: 249.7
 
 num_features: 150
 num_features_init: 50

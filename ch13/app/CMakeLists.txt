@@ -1,2 +1,4 @@
 add_executable(run_kitti_stereo run_kitti_stereo.cpp)
-target_link_libraries(run_kitti_stereo myslam ${THIRD_PARTY_LIBS})
+target_link_libraries(run_kitti_stereo myslam kitti_dataset ${THIRD_PARTY_LIBS})
+add_executable(run_eth3d_stereo run_eth3d_stereo.cpp)
+target_link_libraries(run_eth3d_stereo myslam eth3d_dataset ${THIRD_PARTY_LIBS})

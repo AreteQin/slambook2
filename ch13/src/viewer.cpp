@@ -152,7 +152,7 @@ void Viewer::DrawMapPoints() {
 
     glPointSize(2);
     glBegin(GL_POINTS);
-    for (auto& landmark : active_landmarks_) {
+    for (auto& landmark : map_->GetAllMapPoints()) {
         auto pos = landmark.second->Pos();
         glColor3f(red[0], red[1], red[2]);
         glVertex3d(pos[0], pos[1], pos[2]);
