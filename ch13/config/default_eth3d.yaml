@@ -1,0 +1,10 @@
+%YAML:1.0
+# data
+# the tum dataset directory, change it to yours!
+dataset_dir: /home/qin/Downloads/training/mannequin_face_1
+
+num_features: 150
+num_features_init: 50
+num_features_tracking: 50 # determine tracking status, good or bad, smaller is bad
+num_features_tracking_bad: 20 # if smaller than this number, tracking is lost
+num_features_needed_for_keyframe: 80 # if smaller than this number, insert a new keyframe

@@ -28,54 +28,62 @@ namespace myslam {
             : dataset_path_(dataset_path) {}
 
     bool Dataset::Init() {
-        // read 1st camera intrinsics and extrinsics
-        std::ifstream intrinsic1(dataset_path_ + "/calibration.txt");
-        if (!intrinsic1) {
-            LOG(ERROR) << "cannot find " << dataset_path_ << "/calibration.txt";
-            return false;
-        }
-        double K1[4];
-        for (int i = 0; i < 4; ++i) {
-            intrinsic1 >> K1[i];
-        }
-        Vec3 t1;
-        t1 << 0,0,0;
-        Camera::Ptr new_camera1(new Camera(K1[0], K1[1], K1[2], K1[3], t1.norm(), SE3(SO3(), t1)));
-        cameras_.push_back(new_camera1);
-
-        // read 2nd camera intrinsics and extrinsics
-        std::ifstream intrinsic2(dataset_path_ + "/calibration2.txt");
-        if (!intrinsic2) {
+        // read 1st camera intrinsics
+        std::ifstream intrinsic_left(dataset_path_ + "/calibration2.txt");
+        if (!intrinsic_left) {
             LOG(ERROR) << "cannot find " << dataset_path_ << "/calibration2.txt";
             return false;
         }
-        double K2[4];
-        for (double & i : K2) {
-            intrinsic2 >> i;
+        double K1[4];
+        for (double &i: K1) {
+            intrinsic_left >> i;
         }
-        std::ifstream extrinsic(dataset_path_ + "/extrinsics_1_2.txt");
-        if (!extrinsic) {
+        Vec3 t1;
+        t1 << 0, 0, 0;
+//        Camera::Ptr camera_left(
+//                new Camera(K1[0], K1[1], K1[2], K1[3], t1.norm(), SE3(SO3(), t1)));
+        Camera::Ptr camera_left(
+                new Camera(K1[0]*0.5, K1[1]*0.5, K1[2]*0.5, K1[3]*0.5, t1.norm(), SE3(SO3(), t1)));
+        cameras_.push_back(camera_left);
+
+        // read 2nd camera intrinsics and extrinsics
+        std::ifstream intrinsic_right(dataset_path_ + "/calibration.txt");
+        if (!intrinsic_right) {
+            LOG(ERROR) << "cannot find " << dataset_path_ << "/calibration.txt";
+            return false;
+        }
+        double K2[4];
+        for (double &i: K2) {
+            intrinsic_right >> i;
+        }
+        std::ifstream extrinsic_left2right(dataset_path_ + "/extrinsics_1_2.txt");
+        if (!extrinsic_left2right) {
             LOG(ERROR) << "cannot find " << dataset_path_ << "/extrinsics_1_2.txt";
             return false;
         }
         double projection_data[12]; // T from right to left camera
-        for (double & k2 : projection_data) {
-            extrinsic >> k2;
+        for (double &i: projection_data) {
+            extrinsic_left2right >> i;
         }
         Mat33 R2;
         R2 << projection_data[0], projection_data[1], projection_data[2],
                 projection_data[4], projection_data[5], projection_data[6],
                 projection_data[8], projection_data[9], projection_data[10];
+        Eigen::JacobiSVD<Eigen::MatrixXd> SO3_R(R2, Eigen::ComputeThinU | Eigen::ComputeThinV);
+        R2 = SO3_R.matrixU().inverse() * SO3_R.matrixV().transpose().inverse();
+        Mat33 R = R2.inverse();
         Vec3 t2;
         t2 << projection_data[3], projection_data[7], projection_data[11];
-//        R = R * 0.5;
-        Camera::Ptr new_camera2(new Camera(K2[0], K2[1], K2[2], K2[3], t2.norm(), SE3(SO3(), t2)));
+//        Camera::Ptr new_camera2(
+//                new Camera(K2[0], K2[1], K2[2], K2[3], t2.norm(), SE3(R, -1*t2)));
+        Camera::Ptr new_camera2(
+                new Camera(K2[0]*0.5, K2[1]*0.5, K2[2]*0.5, K2[3]*0.5, t2.norm()*0.5, SE3(R, -1*t2*0.5)));
         cameras_.push_back(new_camera2);
 
 //        LOG(INFO) << "Camera extrinsics: " << t.transpose();
-        extrinsic.close();
-        intrinsic1.close();
-        intrinsic2.close();
+        extrinsic_left2right.close();
+        intrinsic_left.close();
+        intrinsic_right.close();
 
         // read image pairs
         std::ifstream dataset(dataset_path_ + "/associated.txt");
@@ -87,9 +95,9 @@ namespace myslam {
         while (getline(dataset, line)) {
             std::vector<std::string> each_in_line;
             tokenize(line, ' ', each_in_line);
-            left_images_.push_back(dataset_path_ + "/" + each_in_line[1]);
-            right_images_.push_back((dataset_path_ + "/" + each_in_line[1]).insert(47, "2"));
-            //LOG(INFO) << (dataset_path_ + "/" + each_in_line[1]).insert(47, "2");
+            left_images_.push_back(dataset_path_ + "/" + each_in_line[1].insert(3, "2"));
+            right_images_.push_back(dataset_path_ + "/" + each_in_line[1]);
+//            LOG(INFO) << (dataset_path_ + "/" + each_in_line[1]);
         }
 
         current_image_index_ = 0;
@@ -102,6 +110,7 @@ namespace myslam {
         // read images
         image_left = cv::imread(left_images_[current_image_index_], cv::IMREAD_GRAYSCALE);
         image_right_original = cv::imread(right_images_[current_image_index_], cv::IMREAD_GRAYSCALE);
+
         cv::resize(image_right_original, image_right, cv::Size(image_left.cols, image_left.rows), cv::INTER_LINEAR);
 
         if (image_left.data == nullptr || image_right.data == nullptr) {

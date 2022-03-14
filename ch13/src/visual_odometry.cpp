@@ -13,7 +13,7 @@ namespace myslam {
 
     bool VisualOdometry::Init(Camera::Ptr left, Camera::Ptr right, int dataset_type) {
         // read from config file
-        if (Config::SetParameterFile(config_file_path_) == false) {
+        if (!Config::SetParameterFile(config_file_path_)) {
             return false;
         }
 

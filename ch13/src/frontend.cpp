@@ -19,7 +19,8 @@ namespace myslam {
         gftt_ =
                 cv::GFTTDetector::create(Config::Get<int>("num_features"), 0.01, 20);
         num_features_init_ = Config::Get<int>("num_features_init");
-        num_features_ = Config::Get<int>("num_features");
+        num_features_tracking_bad_ = Config::Get<int>("num_features_tracking_bad");
+        num_features_needed_for_keyframe_ = Config::Get<int>("num_features_needed_for_keyframe");
     }
 
     bool Frontend::AddFrame(myslam::Frame::Ptr frame) {
@@ -357,6 +358,7 @@ namespace myslam {
 
     bool Frontend::BuildInitMap() {
         std::vector<SE3> poses{camera_left_->pose(), camera_right_->pose()};
+        LOG(INFO)<<"poses: \n"<<poses[0].matrix()<<"\n"<<poses[1].matrix();
         size_t cnt_init_landmarks = 0;
         for (size_t i = 0; i < current_frame_->features_left_.size(); ++i) {
             if (current_frame_->features_right_[i] == nullptr) continue;
@@ -368,8 +370,10 @@ namespace myslam {
                     camera_right_->pixel2camera(
                             Vec2(current_frame_->features_right_[i]->position_.pt.x,
                                  current_frame_->features_right_[i]->position_.pt.y))};
+//            LOG(INFO)<<"points: \n"<<points[0].matrix()<<"\n"<<points[1].matrix();
             Vec3 pworld = Vec3::Zero();
-
+            LOG(INFO) << "triangulation: " << triangulation(poses, points, pworld);
+            LOG(INFO) << "P world: \n" << pworld.matrix();
             if (triangulation(poses, points, pworld) && pworld[2] > 0) {
                 auto new_map_point = MapPoint::CreateNewMappoint();
                 new_map_point->SetPos(pworld);

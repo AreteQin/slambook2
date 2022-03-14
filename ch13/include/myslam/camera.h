@@ -15,7 +15,7 @@ class Camera {
 
     double fx_ = 0, fy_ = 0, cx_ = 0, cy_ = 0,
            baseline_ = 0;  // Camera intrinsics
-    SE3 pose_;             // extrinsic, from stereo camera to single camera
+    SE3 pose_;             // extrinsic_left2right, from stereo camera to single camera
     SE3 pose_inv_;         // inverse of extrinsics
 
     Camera();
