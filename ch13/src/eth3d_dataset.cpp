@@ -40,10 +40,8 @@ namespace myslam {
         }
         Vec3 t1;
         t1 << 0, 0, 0;
-//        Camera::Ptr camera_left(
-//                new Camera(K1[0], K1[1], K1[2], K1[3], t1.norm(), SE3(SO3(), t1)));
         Camera::Ptr camera_left(
-                new Camera(K1[0]*0.5, K1[1]*0.5, K1[2]*0.5, K1[3]*0.5, t1.norm(), SE3(SO3(), t1)));
+                new Camera(K1[0], K1[1], K1[2], K1[3], t1.norm(), SE3(SO3(), t1)));
         cameras_.push_back(camera_left);
 
         // read 2nd camera intrinsics and extrinsics
@@ -74,16 +72,20 @@ namespace myslam {
         Mat33 R = R2.inverse();
         Vec3 t2;
         t2 << projection_data[3], projection_data[7], projection_data[11];
-//        Camera::Ptr new_camera2(
-//                new Camera(K2[0], K2[1], K2[2], K2[3], t2.norm(), SE3(R, -1*t2)));
-        Camera::Ptr new_camera2(
-                new Camera(K2[0]*0.5, K2[1]*0.5, K2[2]*0.5, K2[3]*0.5, t2.norm()*0.5, SE3(R, -1*t2*0.5)));
-        cameras_.push_back(new_camera2);
+        t2 = -1 * (R * t2);
+        Camera::Ptr camera_right(
+                new Camera(K2[0], K2[1], K2[2], K2[3], t2.norm(), SE3(R, t2)));
+        cameras_.push_back(camera_right);
 
 //        LOG(INFO) << "Camera extrinsics: " << t.transpose();
         extrinsic_left2right.close();
         intrinsic_left.close();
         intrinsic_right.close();
+
+        std::cout << "left K:\n" << camera_left->K().matrix() << std::endl;
+        std::cout << "left t:\n" << camera_left->pose().matrix() << std::endl;
+        std::cout << "right K:\n" << camera_right->K().matrix() << std::endl;
+        std::cout << "right t:\n" << camera_right->pose().matrix() << std::endl;
 
         // read image pairs
         std::ifstream dataset(dataset_path_ + "/associated.txt");
@@ -118,13 +120,15 @@ namespace myslam {
             return nullptr;
         }
 
-        cv::Mat image_left_resized, image_right_resized;
-        cv::resize(image_left, image_left_resized, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST);
-        cv::resize(image_right, image_right_resized, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST);
+//        cv::Mat image_left_resized, image_right_resized;
+//        cv::resize(image_left, image_left_resized, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST);
+//        cv::resize(image_right, image_right_resized, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST);
 
         auto new_frame = Frame::CreateFrame();
-        new_frame->left_img_ = image_left_resized;
-        new_frame->right_img_ = image_right_resized;
+//        new_frame->left_img_ = image_left_resized;
+//        new_frame->right_img_ = image_right_resized;
+        new_frame->left_img_ = image_left;
+        new_frame->right_img_ = image_right;
         current_image_index_++;
         return new_frame;
     }

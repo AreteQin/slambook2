@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
         if (!vo->Step(dataset->NextFrame())) {
             break;
         }
+        sleep(myslam::Config::Get<int>("sleep_time"));
     }
 
 //    backend_->Stop();

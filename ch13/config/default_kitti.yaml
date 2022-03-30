@@ -14,3 +14,4 @@ num_features_init: 50
 num_features_tracking: 50 # determine tracking status, good or bad, smaller is bad
 num_features_tracking_bad: 20 # if smaller than this number, tracking is lost
 num_features_needed_for_keyframe: 80 # if smaller than this number, insert a new keyframe
+sleep_time: 1 # sleep time after each frame
