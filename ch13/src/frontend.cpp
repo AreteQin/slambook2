@@ -250,7 +250,7 @@ namespace myslam {
         Mat error;
         cv::calcOpticalFlowPyrLK(
                 last_frame_->left_img_, current_frame_->left_img_, kps_last,
-                kps_current, status, error, cv::Size(11, 11), 3,
+                kps_current, status, error, cv::Size(31, 31), 3,
                 cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 30,
                                  0.01),
                 cv::OPTFLOW_USE_INITIAL_FLOW);
