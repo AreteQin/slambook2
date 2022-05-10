@@ -97,7 +97,7 @@ bool Dataset::Init() {
   while (getline(dataset, line)) {
     char *cstr = new char[line.length() + 1];
     std::strcpy(cstr, line.c_str());
-    char *p = std::strtok(cstr+15, " ");
+    char *p = std::strtok(cstr + 15, " ");
 //    for (int i = 1; i < 2; i++){
 //      p = std::strtok(nullptr, " ");
 //    }
@@ -118,7 +118,8 @@ Frame::Ptr Dataset::NextFrame() {
   image_left = cv::imread(left_images_[current_image_index_], cv::IMREAD_GRAYSCALE);
   image_right_original = cv::imread(right_images_[current_image_index_], cv::IMREAD_GRAYSCALE);
 
-  cv::resize(image_right_original, image_right, cv::Size(image_left.cols, image_left.rows), cv::INTER_LINEAR);
+  cv::resize(image_right_original, image_right, cv::Size(image_left.cols,
+                                                         image_left.rows), cv::INTER_LINEAR);
 
   if (image_left.data == nullptr || image_right.data == nullptr) {
     LOG(WARNING) << "cannot find images at index " << current_image_index_;
