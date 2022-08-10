@@ -24,7 +24,7 @@ public:
     _estimate << 0, 0, 0;
   }
 
-  // 更新
+  //  update estimation
   virtual void oplusImpl(const double *update) override {
     _estimate += Eigen::Vector3d(update);
   }
@@ -40,12 +40,13 @@ class CurveFittingEdge : public g2o::BaseUnaryEdge<1, double, CurveFittingVertex
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  // constructor
   CurveFittingEdge(double x) : BaseUnaryEdge(), _x(x) {}
 
   // 计算曲线模型误差
   virtual void computeError() override {
     const CurveFittingVertex *v = static_cast<const CurveFittingVertex *> (_vertices[0]);
-    const Eigen::Vector3d abc = v->estimate();
+    const Eigen::Vector3d abc = v->estimate(); // get current estimated curve parameters.
     _error(0, 0) = _measurement - std::exp(abc(0, 0) * _x * _x + abc(1, 0) * _x + abc(2, 0));
   }
 
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
   for (int i = 0; i < N; i++) {
     double x = i / 100.0;
     x_data.push_back(x);
-    y_data.push_back(exp(ar * x * x + br * x + cr) + rng.gaussian(w_sigma * w_sigma));
+    y_data.push_back(exp(ar * x * x + br * x + cr)); // + rng.gaussian(w_sigma * w_sigma));
   }
 
   // 构建图优化，先设定g2o
