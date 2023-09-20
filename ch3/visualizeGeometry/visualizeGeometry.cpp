@@ -84,11 +84,11 @@ int main(int argc, char **argv) {
     pangolin::OpenGlMatrix matrix = s_cam.GetModelViewMatrix();
     Matrix<double, 4, 4> m = matrix;
 
-    RotationMatrix R;
-    for (int i = 0; i < 3; i++)
-      for (int j = 0; j < 3; j++)
-        R.matrix(i, j) = m(j, i);
-    rotation_matrix = R;
+      RotationMatrix R;
+      for (int i = 0; i < 3; i++)
+          for (int j = 0; j < 3; j++)
+              R.matrix(i, j) = m(j, i);
+      rotation_matrix = R;
 
     TranslationVector t;
     t.trans = Vector3d(m(0, 3), m(1, 3), m(2, 3));

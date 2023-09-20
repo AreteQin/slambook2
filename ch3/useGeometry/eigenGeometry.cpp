@@ -11,7 +11,17 @@ using namespace Eigen;
 // 本程序演示了 Eigen 几何模块的使用方法
 
 int main(int argc, char **argv) {
-
+    double R21 = -0.923949;
+    double R11 = -0.148326;
+    double R31 = -0.352589;
+    double R32 = -0.9308;
+    double R33 = 0.096396;
+    double roll = atan2(R32, R33);
+    double pitch = atan2(-R31, sqrt(R32 * R32 + R33 * R33));
+    double yaw = atan2(R21, R11);
+    cout << "roll: " << roll << endl;
+    cout << "pitch: " << pitch << endl;
+    cout << "yaw: " << yaw << endl;
   // Eigen/Geometry 模块提供了各种旋转和平移的表示
   // 3D 旋转矩阵直接使用 Matrix3d 或 Matrix3f
   Matrix3d rotation_matrix = Matrix3d::Identity();
