@@ -84,7 +84,7 @@ public:
     double _x; // x 值， y 值为 _measurement
 };
 
-int main(int argc, char** argv)
+int main()
 {
     double ar = 1.0, br = 2.0, cr = 1.0; // 真实参数值
     double ae = 2.0, be = -1.0, ce = 5.0; // 估计参数值
